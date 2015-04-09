@@ -17,6 +17,7 @@ requires = [
     'transaction',
     'zope.sqlalchemy',
     'waitress',
+    'docutils',
     ]
 
 setup(name='learning_journal',
