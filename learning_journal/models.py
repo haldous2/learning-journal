@@ -47,12 +47,12 @@ class Entries(Base):
     created = Column(DateTime, default=datetime.datetime.utcnow)
     edited = Column(DateTime, default=datetime.datetime.utcnow)
 
-    @title.setter
-    def title(self, value):
+    @sTitle.setter
+    def sTitle(self, value):
         if (value == ""):
             raise Exception
         else
-            title = value
+            self.title = value
 
     @classmethod
     def all(cls):
