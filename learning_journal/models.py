@@ -45,10 +45,12 @@ class Entries(Base):
     title = Column(String(255), unique=True, nullable=False)
     body = Column(UnicodeText, default=u'')
     created = Column(DateTime, default=datetime.datetime.utcnow)
-    edited = Column(DateTime, default=datetime.datetime.utcnow)
+    edited = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
-    @sTitle.setter
-    def sTitle(self, value):
+    # Title is required
+    # Do I need a getter ? Can I name my setter the same as the column ?
+    @title.setter
+    def title(self, value):
         if (value == ""):
             raise Exception
         else
@@ -56,7 +58,7 @@ class Entries(Base):
 
     @classmethod
     def all(cls):
-        return DBSession.query(cls).order_by(sa.desc(cls.created)).all()
+        return DBSession.query(cls).order_by(desc(cls.created)).all()
 
     @classmethod
     def by_id(cls, id):
