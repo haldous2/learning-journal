@@ -43,9 +43,9 @@ class Entries(Base):
 
     id = Column(Integer, primary_key=True)
     title = Column(String(255), unique=True, nullable=False)
-    body = Column(Text)
-    created = Column(Date, default=_get_date)
-    edited = Column(Date, default=_get_date, onupdate=_get_date)
+    body = Column(UnicodeText, default=u'')
+    created = Column(DateTime, default=datetime.datetime.utcnow)
+    edited = Column(DateTime, default=datetime.datetime.utcnow)
 
     @title.setter
     def title(self, value):
@@ -53,3 +53,11 @@ class Entries(Base):
             raise Exception
         else
             title = value
+
+    @classmethod
+    def all(cls):
+        return DBSession.query(cls).order_by(sa.desc(cls.created)).all()
+
+    @classmethod
+    def by_id(cls, id):
+        return DBSession.query(cls).filter(cls.id == id).first()
