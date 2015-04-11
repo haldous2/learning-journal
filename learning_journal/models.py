@@ -1,10 +1,16 @@
+import datetime
+
 from sqlalchemy import (
     Column,
+    DateTime,
     Index,
     Integer,
     Text,
+    Unicode,
+    UnicodeText,
     )
 
+import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
 
 from sqlalchemy.orm import (
@@ -26,40 +32,53 @@ class MyModel(Base):
 
 Index('my_index', MyModel.name, unique=True, mysql_length=255)
 
-## It should be stored in a database table called entries
-## It should have a primary key field called id
-## It should have a title field which accepts unicode text up to 255 characters in length
-## -- maybe... The title should be unique and it should be impossible to save an entry without a title.
-## -- need to test... It should have a body field which accepts unicode text of any length (including none)
-## It should have a created field which stores the date and time the object was created.
-## It should have an edited field which stores the date and time the object was last edited.
-## Both the created and edited field should default to now if not provided when a new instance is constructed.
-#The entry class should support a classmethod all that returns all the entries in the database, ordered so that the most recent entry is first.
-#The entry class should support a classmethod by_id that returns a single entry, given an id.
+##
+# Add entries to Entry
+#
+# initialize_learning_journal_db development.ini (run to create table - if this hasn't been done yet...)
+#
+# >>> from ljshell import Session
+# >>> from learning_journal.models import Entry
+# >>> session = Session()
+#
+# >>> new_model = Entry(title='the title', body='the body')
+# >>> session.add(new_model)
+#
+# OR
+#
+# >>> session.add(Entry(title='blog post one', body='this is the body of blog post one'))
+# >>> session.add(Entry(title='blog post two', body='this is the body of blog post two'))
+# >>> session.add(Entry(title='blog post three', body='this is the body of blog post three'))
+# >>> session.add(Entry(title='blog post four', body='this is the body of blog post four'))
+#
+# >>> session.commit()
+#
+# >>> session.query(Entry).count() (quick test to see how many records are in in the table)
+##
 
-class Entries(Base):
+class Entry(Base):
 
-    __tablename__ = 'entry'
-
+    __tablename__ = 'entries'
+    
     id = Column(Integer, primary_key=True)
-    title = Column(String(255), unique=True, nullable=False)
+    title = Column(Unicode(255), unique=True, nullable=False)
     body = Column(UnicodeText, default=u'')
     created = Column(DateTime, default=datetime.datetime.utcnow)
-    edited = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
-
-    # Title is required
-    # Do I need a getter ? Can I name my setter the same as the column ?
-    @title.setter
-    def title(self, value):
-        if (value == ""):
-            raise Exception
-        else
-            self.title = value
+    edited = Column(DateTime, default=datetime.datetime.utcnow)
 
     @classmethod
-    def all(cls):
-        return DBSession.query(cls).order_by(desc(cls.created)).all()
+    def all(cls, session=None):
+        """return a query with all entries, ordered by creation date reversed
+        """
+        if session is None:
+            session = DBSession
+        return session.query(cls).order_by(sa.desc(cls.created)).all()
 
     @classmethod
-    def by_id(cls, id):
-        return DBSession.query(cls).filter(cls.id == id).first()
+    def by_id(cls, id, session=None):
+        """return a single entry identified by id
+        If no entry exists with the provided id, return None
+        """
+        if session is None:
+            session = DBSession
+        return session.query(cls).get(id)

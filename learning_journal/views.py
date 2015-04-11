@@ -6,16 +6,42 @@ from sqlalchemy.exc import DBAPIError
 from .models import (
     DBSession,
     MyModel,
+    Entry,
     )
 
+#@view_config(route_name='home', renderer='templates/mytemplate.pt')
+#def my_view(request):
+#    try:
+#        one = DBSession.query(MyModel).filter(MyModel.name == 'one').first()
+#    except DBAPIError:
+#        return Response(conn_err_msg, content_type='text/plain', status_int=500)
+#    return {'one': one, 'project': 'learning_journal'}
 
-@view_config(route_name='home', renderer='templates/mytemplate.pt')
-def my_view(request):
-    try:
-        one = DBSession.query(MyModel).filter(MyModel.name == 'one').first()
-    except DBAPIError:
-        return Response(conn_err_msg, content_type='text/plain', status_int=500)
-    return {'one': one, 'project': 'learning_journal'}
+##
+# Testing views config
+##
+@view_config(route_name='home', renderer='string')
+def index_page(request):
+    #return 'list page'
+    entries = Entry.all()
+    return {'entries': entries}
+
+@view_config(route_name='detail', renderer='string')
+def view(request):
+    this_id = request.matchdict.get('id', -1)
+    #return {'id': this_id}
+    entry = Entry.by_id(this_id)
+    if not entry:
+        return HTTPNotFound()
+    return {'entry': entry}
+
+@view_config(route_name='action', match_param='action=create', renderer='string')
+def create(request):
+    return 'create page'
+
+@view_config(route_name='action', match_param='action=edit', renderer='string')
+def update(request):
+    return 'edit page'
 
 
 conn_err_msg = """\
@@ -33,4 +59,3 @@ might be caused by one of the following things:
 After you fix the problem, please restart the Pyramid application to
 try it again.
 """
-
