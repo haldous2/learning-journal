@@ -18,6 +18,7 @@ requires = [
     'zope.sqlalchemy',
     'waitress',
     'docutils',
+    'wtforms'
     ]
 
 setup(name='learning_journal',
