@@ -18,11 +18,12 @@ from ..models import (
     Base,
     )
 
-with transaction.manager:
-    manager = Manager
-    password = os.environ.get('ADMIN_PASSWORD', u'admin')
-    password = manager.encode(password)
-    admin = User(name=u'admin', password=password)
+## this isn't working, possibly need to import manager something, something
+#with transaction.manager:
+#    manager = Manager
+#    password = os.environ.get('ADMIN_PASSWORD', u'admin')
+#    password = manager.encode(password)
+#    admin = User(name=u'admin', password=password)
 
 def usage(argv):
     cmd = os.path.basename(argv[0])
