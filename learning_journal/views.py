@@ -14,7 +14,7 @@ from .models import (
 
 ##
 # Default - Home View
-# Test: output pyramid template
+# Test: output pyramid template chameleon
 ##
 #@view_config(route_name='home', renderer='templates/mytemplate.pt')
 #def my_view(request):
@@ -53,7 +53,7 @@ def view(request):
 # Form handler via wtforms
 # url: http://localhost/journal/create
 ##
-@view_config(route_name='action', match_param='action=create', renderer='templates/edit.jinja2')
+@view_config(route_name='action', match_param='action=create', renderer='templates/edit.jinja2', permission='create')
 def create(request):
     entry = Entry()
     form = EntryCreateForm(request.POST)
@@ -71,7 +71,7 @@ def create(request):
 # note: EntryEditForm(POSTed form data [not sure how to implement GET], pre-load this record data)
 #
 ##
-@view_config(route_name='action', match_param='action=edit', renderer='templates/edit.jinja2')
+@view_config(route_name='action', match_param='action=edit', renderer='templates/edit.jinja2', permission='edit')
 def update(request):
     this_id = request.params.get('id', '0')
     #return Response("localhost/journal/" + this_id)

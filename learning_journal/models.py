@@ -19,6 +19,7 @@ from sqlalchemy.orm import (
     )
 
 from zope.sqlalchemy import ZopeTransactionExtension
+from cryptacular.bcrypt import BCRYPTPasswordManager
 
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
@@ -108,4 +109,5 @@ class User(Base):
 
     @classmethod
     def by_name_and_password(cls, name, password):
-        return User.by_name_and_hash(name, hash(password))
+        manager = BCRYPTPasswordManager()
+        return User.by_name_and_hash(name, manager.encode(password))

@@ -2,6 +2,7 @@ from pyramid.config import Configurator
 from sqlalchemy import engine_from_config
 from pyramid.authentication import AuthTktAuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
+from .security import ACLFactory
 
 from .models import (
     DBSession,
@@ -33,9 +34,9 @@ def main(global_config, **settings):
 
     config.add_static_view('static', 'static', cache_max_age=3600)
 
-    config.add_route('home', '/')
-    config.add_route('detail', '/journal/{id:\d+}')
-    config.add_route('action', '/journal/{action}')
+    config.add_route('home', '/', factory=ACLFactory)
+    config.add_route('detail', '/journal/{id:\d+}', factory=ACLFactory)
+    config.add_route('action', '/journal/{action}', factory=ACLFactory)
 
     config.scan()
     return config.make_wsgi_app()
