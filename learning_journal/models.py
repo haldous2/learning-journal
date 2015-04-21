@@ -23,13 +23,13 @@ from zope.sqlalchemy import ZopeTransactionExtension
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
 
-#class MyModel(Base):
-#    __tablename__ = 'models'
-#    id = Column(Integer, primary_key=True)
-#    name = Column(Text)
-#    value = Column(Integer)
+class MyModel(Base):
+    __tablename__ = 'models'
+    id = Column(Integer, primary_key=True)
+    name = Column(Text)
+    value = Column(Integer)
 
-#Index('my_index', MyModel.name, unique=True, mysql_length=255)
+Index('my_index', MyModel.name, unique=True, mysql_length=255)
 
 ##
 # Add entries to Entry
@@ -91,7 +91,7 @@ class Entry(Base):
 #
 #   Notes: 1. never store passwords in plain text, always hash and query by hash
 #          2. always use two factor authentication
-#          3. users should have authentication roles (policies) 
+#          3. users should have authentication roles (policies)
 #
 ##
 class User(Base):
