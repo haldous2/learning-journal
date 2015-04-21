@@ -23,13 +23,13 @@ from zope.sqlalchemy import ZopeTransactionExtension
 DBSession = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
 Base = declarative_base()
 
-class MyModel(Base):
-    __tablename__ = 'models'
-    id = Column(Integer, primary_key=True)
-    name = Column(Text)
-    value = Column(Integer)
+#class MyModel(Base):
+#    __tablename__ = 'models'
+#    id = Column(Integer, primary_key=True)
+#    name = Column(Text)
+#    value = Column(Integer)
 
-Index('my_index', MyModel.name, unique=True, mysql_length=255)
+#Index('my_index', MyModel.name, unique=True, mysql_length=255)
 
 ##
 # Add entries to Entry
@@ -82,14 +82,30 @@ class Entry(Base):
             session = DBSession
         return session.query(cls).get(id)
 
+##
+#
+# Security basics:
+#   who you are   - facial biometric, fingerprints
+#   what you have - your phone, key generator
+#   what you know - your password - keylogger can steal this
+#
+#   Notes: 1. never store passwords in plain text, always hash and query by hash
+#          2. always use two factor authentication
+#          3. users should have authentication roles (policies) 
+#
+##
 class User(Base):
 
     __tablename__ = 'users'
-    
+
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(Unicode(255), unique=True, nullable=False)
-    password = Column(Unicode(255), nullable=False)
+    hashword = Column(Unicode(255), nullable=False)
 
     @classmethod
-    def by_name(cls, name):
-        return DBSession.query(cls).filter(cls.name == name).first()
+    def by_name_and_hash(cls, name, hashword):
+        return DBSession.query(cls).filter(cls.name == name and cls.hashword == hashword).first()
+
+    @classmethod
+    def by_name_and_password(cls, name, password):
+        return User.by_name_and_hash(name, hash(password))
