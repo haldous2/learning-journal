@@ -18,6 +18,11 @@ from ..models import (
     Base,
     )
 
+with transaction.manager:
+    manager = Manager
+    password = os.environ.get('ADMIN_PASSWORD', u'admin')
+    password = manager.encode(password)
+    admin = User(name=u'admin', password=password)
 
 def usage(argv):
     cmd = os.path.basename(argv[0])
@@ -33,6 +38,8 @@ def main(argv=sys.argv):
     options = parse_vars(argv[2:])
     setup_logging(config_uri)
     settings = get_appsettings(config_uri, options=options)
+    if 'DATABASE_URL' in os.environ:
+        settings['sqlalchemy.url'] = os.environ['DATABASE_URL']
     engine = engine_from_config(settings, 'sqlalchemy.')
     DBSession.configure(bind=engine)
     Base.metadata.create_all(engine)
