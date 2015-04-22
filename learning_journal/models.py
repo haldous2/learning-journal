@@ -1,6 +1,7 @@
 import datetime
 
 from sqlalchemy import (
+    and_,
     Column,
     DateTime,
     Index,
@@ -106,7 +107,8 @@ class User(Base):
 
     @classmethod
     def by_name_and_hash(cls, name, hashword):
-        return DBSession.query(cls).filter(cls.name == name and cls.hashword == hashword).first()
+        return DBSession.query(cls).filter(cls.name == name, cls.hashword == hashword).first()
+        #return DBSession.query(cls).filter(and_(cls.name == name, cls.hashword == hashword)).first()
 
     @classmethod
     def by_name_and_password(cls, name, password):

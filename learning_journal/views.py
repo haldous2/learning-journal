@@ -40,7 +40,7 @@ def index_page(request):
     form = None
     if not authenticated_userid(request):
         form = LoginForm()
-    return {'entries': entries, 'login_form': form}
+    return {'entries': Entry.all(), 'login_form': form}
 
 ##
 #
@@ -51,16 +51,15 @@ def index_page(request):
 def view(request):
     this_id = request.matchdict.get('id', -1)
     entry = Entry.by_id(this_id)
-
     if not entry:
         return HTTPNotFound()
-
     return {'entry': entry}
 
 ##
 #
 # Form handler via wtforms
 # url: http://localhost/journal/create
+#
 ##
 @view_config(route_name='action', match_param='action=create', renderer='templates/edit.jinja2', permission='create')
 def create(request):
@@ -98,19 +97,29 @@ def update(request):
 # Authorization required!
 #
 ##
-@view_config(route_name='auth', match_param='action=in', renderer='string', request_method='POST')
+@view_config(route_name='login', match_param='action=in', renderer='string', request_method='POST')
 def sign_in(request):
     login_form = None
     if request.method == 'POST':
         login_form = LoginForm(request.POST)
     if login_form and login_form.validate():
-        user = User.by_name(login_form.username.data)
-        if user and user.verify_password(login_form.password.data):
+        #user = User.by_name(login_form.username.data)
+        #if user and user.verify_password(login_form.password.data):
+        user = User.by_name_and_password(login_form.username.data, login_form.password.data)
+        if user:
             headers = remember(request, user.name)
+            return HTTPFound(location='http://found-the-user')
         else:
             headers = forget(request)
+            return HTTPFound(location='http://did-not-find-the-user')
     else:
         headers = forget(request)
+        #return HTTPFound(location='http://form-not-complete-get-outta-here')
+    return HTTPFound(location=request.route_url('home'), headers=headers)
+
+@view_config(route_name='logout', renderer='string')
+def sign_out(request):
+    headers = forget(request)
     return HTTPFound(location=request.route_url('home'), headers=headers)
 
 ##

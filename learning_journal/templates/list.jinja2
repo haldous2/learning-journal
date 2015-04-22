@@ -2,7 +2,7 @@
 {% block body %}
 
     {% if login_form %}
-    <aside><form action="{{ request.route_url('auth', action='in') }}" method="POST">
+    <aside><form action="{{ request.route_url('login', action='in') }}" method="POST">
       {% for field in login_form %}
         {% if field.errors %}
           <ul>{% for error in field.errors %}

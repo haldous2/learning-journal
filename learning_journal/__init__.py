@@ -37,7 +37,8 @@ def main(global_config, **settings):
     config.add_route('home', '/', factory=ACLFactory)
     config.add_route('detail', '/journal/{id:\d+}', factory=ACLFactory)
     config.add_route('action', '/journal/{action}', factory=ACLFactory)
-    config.add_route('auth', '/sign/{action}', factory=EntryFactory)
+    config.add_route('login', '/sign/{action}', factory=ACLFactory)
+    config.add_route('logout', '/logout', factory=ACLFactory)
 
     config.scan()
     return config.make_wsgi_app()
