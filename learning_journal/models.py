@@ -105,6 +105,18 @@ class User(Base):
     name = Column(Unicode(255), unique=True, nullable=False)
     hashword = Column(Unicode(255), nullable=False)
 
+    ##
+    # Note: it appears that classes and attributes can be added, updated on the fly
+    ##
+
+    @classmethod
+    def by_name(cls, name):
+        return DBSession.query(cls).filter(cls.name == name).first()
+
+    def verify_password(self, password):
+        manager = BCRYPTPasswordManager()
+        return manager.check(self.hashword, password)
+
     @classmethod
     def by_name_and_hash(cls, name, hashword):
         return DBSession.query(cls).filter(cls.name == name, cls.hashword == hashword).first()

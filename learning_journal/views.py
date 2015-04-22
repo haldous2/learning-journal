@@ -103,15 +103,15 @@ def sign_in(request):
     if request.method == 'POST':
         login_form = LoginForm(request.POST)
     if login_form and login_form.validate():
-        #user = User.by_name(login_form.username.data)
-        #if user and user.verify_password(login_form.password.data):
-        user = User.by_name_and_password(login_form.username.data, login_form.password.data)
-        if user:
+        #user = User.by_name_and_password(login_form.username.data, login_form.password.data)
+        user = User.by_name(login_form.username.data)
+        if user and user.verify_password(login_form.password.data):
+        #if user:
             headers = remember(request, user.name)
-            return HTTPFound(location='http://found-the-user')
+            #return HTTPFound(location='http://found-the-user')
         else:
             headers = forget(request)
-            return HTTPFound(location='http://did-not-find-the-user')
+            #return HTTPFound(location='http://did-not-find-the-user')
     else:
         headers = forget(request)
         #return HTTPFound(location='http://form-not-complete-get-outta-here')
