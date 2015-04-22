@@ -93,6 +93,7 @@ class Entry(Base):
 #   Notes: 1. never store passwords in plain text, always hash and query by hash
 #          2. always use two factor authentication
 #          3. users should have authentication roles (policies)
+#          4. always look up user + password, not by single entities in order to thwart hackers
 #
 ##
 class User(Base):

@@ -18,6 +18,9 @@ from ..models import (
     Base,
     )
 
+from cryptacular.bcrypt import BCRYPTPasswordManager as Manager
+from ..models import User
+
 ## this isn't working, possibly need to import manager something, something
 #with transaction.manager:
 #    manager = Manager
@@ -33,12 +36,14 @@ def usage(argv):
 
 
 def main(argv=sys.argv):
+
     if len(argv) < 2:
         usage(argv)
     config_uri = argv[1]
     options = parse_vars(argv[2:])
     setup_logging(config_uri)
     settings = get_appsettings(config_uri, options=options)
+
     if 'DATABASE_URL' in os.environ:
         settings['sqlalchemy.url'] = os.environ['DATABASE_URL']
     engine = engine_from_config(settings, 'sqlalchemy.')
@@ -49,3 +54,10 @@ def main(argv=sys.argv):
     #with transaction.manager:
     #    model = MyModel(name='one', value=1)
     #    DBSession.add(model)
+
+    with transaction.manager:
+        # replace the code to create a MyModel instance
+        manager = Manager()
+        hashword = manager.encode(u'admin')
+        admin = User(name=u'admin', hashword=hashword)
+        DBSession.add(admin)

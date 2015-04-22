@@ -1,8 +1,14 @@
 from pyramid.response import Response
 from pyramid.view import view_config
 from pyramid.httpexceptions import HTTPFound
+
 from .forms import EntryCreateForm
 from .forms import EntryEditForm
+
+# authentication imports
+from pyramid.security import forget, remember, authenticated_userid
+from .forms import LoginForm
+from .models import User
 
 from sqlalchemy.exc import DBAPIError
 
@@ -31,7 +37,10 @@ from .models import (
 #@view_config(route_name='home', renderer='string')
 @view_config(route_name='home', renderer='templates/list.jinja2')
 def index_page(request):
-    return {'entries': Entry.all()}
+    form = None
+    if not authenticated_userid(request):
+        form = LoginForm()
+    return {'entries': entries, 'login_form': form}
 
 ##
 #
@@ -84,6 +93,29 @@ def update(request):
         return HTTPFound(location=request.route_url('detail', id=entry.id))
     return {'form': form, 'action': request.matchdict.get('action')}
 
+##
+#
+# Authorization required!
+#
+##
+@view_config(route_name='auth', match_param='action=in', renderer='string', request_method='POST')
+def sign_in(request):
+    login_form = None
+    if request.method == 'POST':
+        login_form = LoginForm(request.POST)
+    if login_form and login_form.validate():
+        user = User.by_name(login_form.username.data)
+        if user and user.verify_password(login_form.password.data):
+            headers = remember(request, user.name)
+        else:
+            headers = forget(request)
+    else:
+        headers = forget(request)
+    return HTTPFound(location=request.route_url('home'), headers=headers)
+
+##
+#
+##
 conn_err_msg = """\
 Pyramid is having a problem using your SQL database.  The problem
 might be caused by one of the following things:
